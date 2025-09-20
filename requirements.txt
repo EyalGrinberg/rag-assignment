@@ -1,7 +1,9 @@
 python-dotenv
 langchain
 langchain-community
-google-generativeai
 psycopg2-binary
-SQLAlchemy
-tiktoken
+SQLAlchemy 
+pypdf
+langchain-openai
+docx2txt
+numpy
