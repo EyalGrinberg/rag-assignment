@@ -21,8 +21,6 @@ engine = create_engine(os.getenv("POSTGRES_URL")) # Connect to Postgres
 # Constants
 EMBEDDING_MODEL = "text-embedding-3-large"
 SPLIT_STRATEGY = "fixed-size with overlap"
-CHUNK_SIZE = 500 # characters
-CHUNK_OVERLAP = 50 # characters
 
 def clean_chunk_text(text): 
     """
@@ -49,16 +47,18 @@ def load_file(file_path):
         raise ValueError("Unsupported file type")
     return loader.load()
 
-def split_text(docs):
+def split_text(docs, chunk_size, chunk_overlap):
     """
     Split documents into smaller chunks.
     Uses a recursive character splitter with a fixed chunk size of 500 characters and an overlap of 50 characters.
     Args:
         docs (list): List of LangChain Document objects.
+        chunk_size (int): Size of each chunk in characters.
+        chunk_overlap (int): Overlap between chunks in characters.
     Returns:
         list: A list of chunked Document objects.
     """
-    splitter = RecursiveCharacterTextSplitter(chunk_size=CHUNK_SIZE, chunk_overlap=CHUNK_OVERLAP)
+    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     return splitter.split_documents(docs)
 
 def insert_chunks_to_db(chunks, file_name):
@@ -92,7 +92,13 @@ def insert_chunks_to_db(chunks, file_name):
 if __name__ == "__main__":
     file_path = input("Enter path to PDF or DOCX: ")
     docs = load_file(file_path)
-    chunks = split_text(docs)
+    print("Using fixed-size with overlap split strategy.")
+    chunk_size = input(f"Enter chunk size (default is 500): ").strip()
+    chunk_size = int(chunk_size) if chunk_size else 500
+    chunk_overlap = input(f"Enter chunk overlap (default is 50): ").strip()
+    chunk_overlap = int(chunk_overlap) if chunk_overlap else 50
+    print(f"Using chunk size: {chunk_size}, overlap: {chunk_overlap}")
+    chunks = split_text(docs, chunk_size, chunk_overlap)
     insert_chunks_to_db(chunks, os.path.basename(file_path))
     print(f"Total chunks inserted: {len(chunks)}")
     print("Indexing complete!")
