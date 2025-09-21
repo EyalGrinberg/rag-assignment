@@ -21,7 +21,7 @@ This project demonstrates a simple **RAG (Retrieval-Augmented Generation)** pipe
 
 ### PostgreSQL Setup
 
-You can either install PostgreSQL directly or use Docker:
+You can either install PostgreSQL locally or use Docker:
 
 **Using Docker:**
 
@@ -76,10 +76,10 @@ python setup_db.py
 ```
 This creates a table named `chunks` in the database.
 
-### Other Database-Related Scripts - For Testing and Maintenance
+### Other DB Scripts - For Testing and Maintenance
 
-* `check_db.py` – Test if the database contains the expected data (use after insertions).
-* `clean_db.py` – Clean the database. Requires a filename during runtime to delete all chunks related to that file.
+* `check_db.py` - Test if the database contains the expected data (use after insertions) - prints up to 5 chunks.
+* `clean_db.py` - Clean the database. Requires a filename during runtime to delete all chunks related to that file.
 
 ## Project Files
 
@@ -102,7 +102,14 @@ python index_documents.py
     - Load the file.
     - Split the document into chunks using a fixed-size strategy with overlap.
     - Embed each chunk using **OpenAI embeddings** (`text-embedding-3-large`).
-    - Insert each chunk along with its embedding, filename, split strategy, and timestamp into the `chunks` table.
+    - Insert each chunk along with its metadata <br>
+      The table columns are:
+      - ID
+      - chunk_text
+      - embedding
+      - filename
+      - split strategy
+      - created at (a timestamp)
 
 When execution finishes, the script prints the number of inserted chunks followed by:
 ```
@@ -114,13 +121,12 @@ Indexing complete!
 * Retrieves top-k relevant chunks based on cosine similarity of embeddings.
 * Uses a simple RAG pipeline with **LangChain runnables** and an **OpenAI LLM** to generate answers.
 
-* ### Usage:
-
+**Usage:**
 ```
 python search_documents.py
 ```
 
-When running the scripts provide:
+When running the script provide:
 
 * **Query**: The question you want to ask.
 * **k**: The number of retrieved chunks to consider, if not provided - default is 4.
@@ -148,5 +154,5 @@ The retrieved document chunks may not be exact but provide context for the LLM t
   - Embeddings are stored in PostgreSQL.
   - Cosine similarity is computed manually.
   - Only the top-k chunks are retrieved for the RAG pipeline.
-- This approach is sufficient for demonstration purposes and shows an understanding of the RAG process.
+- This approach is sufficient for demonstration purposes.
 - In production, a vector database (e.g., FAISS, Pinecone) would handle similarity search more efficiently.
